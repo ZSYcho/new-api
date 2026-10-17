@@ -358,6 +358,13 @@ func SetApiRouter(router *gin.Engine) {
 		{
 			logRoute.GET("/token", middleware.TokenAuthReadOnly(), controller.GetLogByKey)
 		}
+		agentRunRoute := apiRouter.Group("/agent_runs")
+		// The run lookup is a LIKE scan of the token's logs, so it shares the
+		// per-user search rate limit.
+		agentRunRoute.Use(middleware.CORS(), middleware.TokenAuthReadOnly(), middleware.SearchRateLimit())
+		{
+			agentRunRoute.GET("/:id/cost", controller.GetAgentRunCost)
+		}
 		groupRoute := apiRouter.Group("/group")
 		groupRoute.Use(middleware.AdminAuth())
 		{
